@@ -97,6 +97,7 @@ router.get('/', function (req, res) {
     path: 'likeIds',
     populate: { path: 'liked_by',select:'_id first_name last_name profile_image' }
   });
+  query.populate('posted_by','_id first_name last_name profile_image');
   query.exec(function(error,posts){
     if (error) {
       console.log(error);
@@ -199,16 +200,23 @@ router.put('/:id', function (req, res) {
       }else{
         body.images = imageData;
       }
+      console.log(body.tagged_user);
       var tagged_users = [];
-      for(let i = 0; i < body.tagged_user.length;i++){
-        console.log(body.tagged_user[i]);
-        if(body.tagged_user[i] != ''){
-        tagged_users.push(body.tagged_user[i]);
+      if(body.tagged_user != undefined){
+        for(let i = 0; i < body.tagged_user.length;i++){
+          console.log(body.tagged_user[i]);
+          if(body.tagged_user[i] != ''){
+          tagged_users.push(body.tagged_user[i]);
+          }
         }
       }
       //console.log(body.tagged_user);
       var myquery = {_id:req.params.id};
+      if(tagged_users.length > 0){
       var newvalues = {$set:{content:body.content,images:body.images,tagged_user:tagged_users,updated_at:new Date()}};
+      }else{
+      var newvalues = {$set:{content:body.content,images:body.images,updated_at:new Date()}};
+      }
       Posts.updateOne(myquery, newvalues, function(err, post) {
         if (err) {
           res.status(400).send({ status: false, message: err });
