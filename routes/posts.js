@@ -132,7 +132,7 @@ router.post('/',function (req, res) {
       }
       body.images = imageData;
       body.posted_by = req.user.id;
-        
+      console.log(body);
       Posts.create(body, function (err, post) {
         if (err) {
           res.status(400).send({ status: false, message: err });
